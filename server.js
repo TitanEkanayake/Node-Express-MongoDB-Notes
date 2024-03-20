@@ -22,4 +22,5 @@ const usersRouter = require("./routes/users");
 app.use("/notes", notesRouter);
 app.use("/users", usersRouter);
 
-app.listen(8080, () => console.log("Server Started"));
+const PORT = process.env.PORT;
+app.listen(PORT, () => console.log("Server Started on port 8080"));
