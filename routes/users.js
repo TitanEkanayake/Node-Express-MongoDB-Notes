@@ -22,7 +22,7 @@ router.get("/:email", getuser, (req, res) => {
 });
 
 //creating one | Signup |
-router.post("/signin", (req, res) => {
+router.post("/signup", (req, res) => {
   let { name, email, password } = req.body;
   name = name.trim();
   email = email.trim();
