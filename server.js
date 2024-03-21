@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-// const cors = require("cors");
+const cors = require("cors");
 
 mongoose
   .connect(process.env.DATABASE_URL)
@@ -14,7 +14,7 @@ mongoose
   });
 
 app.use(express.json());
-// app.use(cors());
+app.use(cors());
 
 const notesRouter = require("./routes/notes");
 const usersRouter = require("./routes/users");

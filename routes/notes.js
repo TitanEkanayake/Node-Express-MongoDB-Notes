@@ -2,9 +2,8 @@ const express = require("express");
 const router = express.Router();
 const Note = require("../models/notes");
 
-// getting all
+// getting all notes
 router.get("/", async (req, res) => {
-  //   res.send("Hello, world!");
   try {
     const notes = await Note.find();
     res.json(notes);
@@ -12,10 +11,23 @@ router.get("/", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-// getting one
-router.get("/:id", getnote, (req, res) => {
-  res.json(res.note);
+
+// getting note by ID
+router.get("/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const notes = await Note.find({ userId: userId });
+    if (notes.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No notes found for the given userId" });
+    }
+    res.json(notes);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 });
+
 //creating one
 router.post("/", async (req, res) => {
   const note = new Note({
@@ -25,13 +37,15 @@ router.post("/", async (req, res) => {
   });
   try {
     const newNote = await note.save();
+
     res.status(201).json(newNote);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 });
-// updating one
-router.patch("/:id", getnote, async (req, res) => {
+
+// updating a note
+router.patch("/:userId", getnote, async (req, res) => {
   if (req.body.name != null) {
     res.note.name = req.body.name;
   }
@@ -45,7 +59,8 @@ router.patch("/:id", getnote, async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 });
-// deleting one
+
+// deleting a note
 router.delete("/:id", getnote, async (req, res) => {
   try {
     await res.note.deleteOne();

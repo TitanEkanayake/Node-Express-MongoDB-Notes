@@ -16,11 +16,6 @@ router.get("/:id", getuser, (req, res) => {
   res.json(res.user);
 });
 
-// getting one by Email
-router.get("/:email", getuser, (req, res) => {
-  res.json(res.user);
-});
-
 //creating one | Signup |
 router.post("/signup", (req, res) => {
   let { name, email, password } = req.body;
