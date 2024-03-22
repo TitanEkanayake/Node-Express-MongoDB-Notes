@@ -6,25 +6,32 @@ const Note = require("../models/notes");
 router.get("/", async (req, res) => {
   try {
     const notes = await Note.find();
-    res.json(notes);
+    res.json({
+      status: 200,
+      notes: notes,
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.json({
+      status: 500,
+      message: err.message,
+    });
   }
 });
 
-// getting note by ID
+// getting note by userID
 router.get("/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
     const notes = await Note.find({ userId: userId });
-    if (notes.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No notes found for the given userId" });
-    }
-    res.json(notes);
+    res.json({
+      status: 200,
+      notes: notes,
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.json({
+      status: 500,
+      message: error.message,
+    });
   }
 });
 
@@ -37,15 +44,20 @@ router.post("/", async (req, res) => {
   });
   try {
     const newNote = await note.save();
-
-    res.status(201).json(newNote);
+    res.json({
+      status: 201,
+      note: newNote,
+    });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.json({
+      status: 400,
+      message: err.message,
+    });
   }
 });
 
 // updating a note
-router.patch("/:userId", getnote, async (req, res) => {
+router.patch("/:id", getnote, async (req, res) => {
   if (req.body.name != null) {
     res.note.name = req.body.name;
   }
@@ -54,9 +66,15 @@ router.patch("/:userId", getnote, async (req, res) => {
   }
   try {
     const updatednote = await res.note.save();
-    res.json(updatednote);
+    res.json({
+      status: 200,
+      note: updatednote,
+    });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.json({
+      status: 400,
+      message: err.message,
+    });
   }
 });
 
@@ -64,9 +82,15 @@ router.patch("/:userId", getnote, async (req, res) => {
 router.delete("/:id", getnote, async (req, res) => {
   try {
     await res.note.deleteOne();
-    res.json({ message: "Note Deleted" });
+    res.json({
+      status: 200,
+      message: "Note Deleted",
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.json({
+      status: 500,
+      message: err.message,
+    });
   }
 });
 

@@ -6,9 +6,15 @@ const bcrypt = require("bcrypt");
 router.get("/", async (req, res) => {
   try {
     const users = await User.find();
-    res.json(users);
+    res.json({
+      status: 200,
+      users: users,
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.json({
+      status: 500,
+      message: err.message,
+    });
   }
 });
 // getting one by ID
@@ -48,9 +54,16 @@ router.post("/signup", (req, res) => {
 
             try {
               const newUser = await user.save();
-              res.status(201).json(newUser);
+              res.json({
+                status: 201,
+                message: "User Created",
+                user: newUser,
+              });
             } catch (err) {
-              res.status(400).json({ message: err.message });
+              res.json({
+                status: 400,
+                message: err.message,
+              });
             }
           })
           .catch((err) => {
@@ -67,14 +80,13 @@ router.post("/signup", (req, res) => {
 //Login
 router.post("/login", (req, res) => {
   let { email, password } = req.body;
-  // email = email.trim();
-  // password = password.trim();
+  email = email.trim();
+  password = password.trim();
 
   User.find({ email })
     .then((data) => {
       if (data) {
         const hashedPassword = data[0].password;
-        // res.send(hashedPassword);
         bcrypt
           .compare(password, hashedPassword)
           .then((result) => {
@@ -107,7 +119,7 @@ router.post("/login", (req, res) => {
     .catch((err) => {
       res.json({
         status: 400,
-        message: `An error occurred while finding your Email - email not found`,
+        message: `An error occurred while finding your Email - ${err.message}`,
       });
     });
 });
@@ -116,23 +128,35 @@ router.patch("/:id", getuser, async (req, res) => {
   if (req.body.name != null) {
     res.user.name = req.body.name;
   }
-  if (req.body.description != null) {
-    res.user.description = req.body.description;
+  if (req.body.email != null) {
+    res.user.email = req.body.email;
   }
   try {
     const updateduser = await res.user.save();
-    res.json(updateduser);
+    res.json({
+      status: 200,
+      user: updateduser,
+    });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.json({
+      status: 400,
+      message: err.message,
+    });
   }
 });
 // deleting one
 router.delete("/:id", getuser, async (req, res) => {
   try {
     await res.user.deleteOne();
-    res.json({ message: "User Deleted" });
+    res.json({
+      status: 200,
+      message: "User Deleted",
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.json({
+      status: 500,
+      message: err.message,
+    });
   }
 });
 
