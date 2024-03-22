@@ -119,7 +119,7 @@ router.post("/login", (req, res) => {
     .catch((err) => {
       res.json({
         status: 400,
-        message: `An error occurred while finding your Email - ${err.message}`,
+        message: `An error occurred cannot find the user please signup!`,
       });
     });
 });
