@@ -22,10 +22,10 @@ router.get("/", async (req, res) => {
 router.get("/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
-    const notes = await Note.find({ userId: userId });
+    const userNotes = await Note.find({ userId: userId });
     res.json({
       status: 200,
-      notes: notes,
+      notes: userNotes,
     });
   } catch (error) {
     res.json({
