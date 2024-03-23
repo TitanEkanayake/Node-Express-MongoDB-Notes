@@ -2,7 +2,11 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/users");
 const bcrypt = require("bcrypt");
+const generateResetToken = require("../utils/tokengenerator");
+const sendResetPasswordEmail = require("../utils/emailgenerator");
+
 // getting all
+
 router.get("/", async (req, res) => {
   try {
     const users = await User.find();
@@ -23,6 +27,7 @@ router.get("/:id", getuser, (req, res) => {
 });
 
 //creating one | Signup |
+
 router.post("/signup", (req, res) => {
   let { name, email, password } = req.body;
   name = name.trim();
@@ -78,6 +83,7 @@ router.post("/signup", (req, res) => {
 });
 
 //Login
+
 router.post("/login", (req, res) => {
   let { email, password } = req.body;
   email = email.trim();
@@ -116,14 +122,78 @@ router.post("/login", (req, res) => {
         });
       }
     })
-    .catch((err) => {
+    .catch(() => {
       res.json({
         status: 400,
         message: `An error occurred cannot find the user please signup!`,
       });
     });
 });
+
+//forget password
+
+router.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+  const resetToken = generateResetToken();
+
+  try {
+    if (!resetToken) {
+      return res.json({
+        status: 404,
+        message: "Failed to generate reset token.",
+      });
+    }
+
+    const expirationTime = Date.now() + 3600000;
+
+    const user = await User.findOneAndUpdate(
+      { email },
+      { resetToken: resetToken, resetTokenExpiration: expirationTime }, // Set expiration to 1 hour
+      { new: true }
+    );
+    console.log(user);
+
+    if (!user) {
+      return res.json({ status: 404, message: "User not found." });
+    }
+
+    // Await the email sending process
+    await sendResetPasswordEmail(user.email, resetToken);
+    res.json({ status: 200, message: "Password reset email sent." });
+  } catch (err) {
+    console.error(err);
+    res.json({ status: 500, message: "Internal server error." });
+  }
+});
+
+// Route for handling password reset
+
+router.post("/reset-password", (req, res) => {
+  const { email, token, newPassword } = req.body;
+  // Validate token and update password
+  User.findOneAndUpdate(
+    { email, resetToken: token, resetTokenExpiration: { $gt: Date.now() } },
+    {
+      password: bcrypt.hashSync(newPassword, 10),
+      resetToken: "",
+      resetTokenExpiration: null,
+    },
+    { new: true }
+  )
+    .then((user) => {
+      if (!user) {
+        return res.json({ status: 404, message: "Invalid or expired token." });
+      }
+      res.json({ status: 200, message: "Password updated successfully." });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.json({ status: 500, message: "Internal server error." });
+    });
+});
+
 // updating one
+
 router.patch("/:id", getuser, async (req, res) => {
   if (req.body.name != null) {
     res.user.name = req.body.name;
@@ -144,7 +214,9 @@ router.patch("/:id", getuser, async (req, res) => {
     });
   }
 });
+
 // deleting one
+
 router.delete("/:id", getuser, async (req, res) => {
   try {
     await res.user.deleteOne();
