@@ -5,27 +5,6 @@ const bcrypt = require("bcrypt");
 const generateResetToken = require("../utils/tokengenerator");
 const sendResetPasswordEmail = require("../utils/emailgenerator");
 
-// getting all
-
-router.get("/", async (req, res) => {
-  try {
-    const users = await User.find();
-    res.json({
-      status: 200,
-      users: users,
-    });
-  } catch (err) {
-    res.json({
-      status: 500,
-      message: err.message,
-    });
-  }
-});
-// getting one by ID
-router.get("/:id", getuser, (req, res) => {
-  res.json(res.user);
-});
-
 //creating one | Signup |
 
 router.post("/signup", (req, res) => {
@@ -125,7 +104,7 @@ router.post("/login", (req, res) => {
     .catch(() => {
       res.json({
         status: 400,
-        message: `An error occurred cannot find the user please signup!`,
+        message: `An error occurred cannot find the user please signup !`,
       });
     });
 });
@@ -148,7 +127,7 @@ router.post("/forgot-password", async (req, res) => {
 
     const user = await User.findOneAndUpdate(
       { email },
-      { resetToken: resetToken, resetTokenExpiration: expirationTime }, // Set expiration to 1 hour
+      { resetToken: resetToken, resetTokenExpiration: expirationTime },
       { new: true }
     );
     console.log(user);
@@ -166,7 +145,7 @@ router.post("/forgot-password", async (req, res) => {
   }
 });
 
-// Route for handling password reset
+// password reset
 
 router.post("/reset-password", (req, res) => {
   const { email, token, newPassword } = req.body;
@@ -192,57 +171,4 @@ router.post("/reset-password", (req, res) => {
     });
 });
 
-// updating one
-
-router.patch("/:id", getuser, async (req, res) => {
-  if (req.body.name != null) {
-    res.user.name = req.body.name;
-  }
-  if (req.body.email != null) {
-    res.user.email = req.body.email;
-  }
-  try {
-    const updateduser = await res.user.save();
-    res.json({
-      status: 200,
-      user: updateduser,
-    });
-  } catch (err) {
-    res.json({
-      status: 400,
-      message: err.message,
-    });
-  }
-});
-
-// deleting one
-
-router.delete("/:id", getuser, async (req, res) => {
-  try {
-    await res.user.deleteOne();
-    res.json({
-      status: 200,
-      message: "User Deleted",
-    });
-  } catch (err) {
-    res.json({
-      status: 500,
-      message: err.message,
-    });
-  }
-});
-
-async function getuser(req, res, next) {
-  let user;
-  try {
-    user = await User.findById(req.params.id);
-    if (user == null) {
-      return res.status(404).json({ message: "cannot find the user" });
-    }
-  } catch (err) {
-    return res.status(500).json({ message: err.message });
-  }
-  res.user = user;
-  next();
-}
 module.exports = router;
