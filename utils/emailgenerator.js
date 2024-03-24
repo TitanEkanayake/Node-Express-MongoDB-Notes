@@ -20,8 +20,19 @@ const sendResetPasswordEmail = (email, resetToken) => {
     const mailOptions = {
       to: email,
       from: myEmail,
-      subject: `Reset Your Password for ${email}`,
-      text: `Your reset token is -: ${resetToken}`,
+      subject: `Password Reset Request fo Notes Application`,
+      text: `Hello User,
+
+We received a request to reset your password for your account associated with ${email}. Please use the token below to proceed with resetting your password:
+
+Reset Token: ${resetToken}
+
+This token is valid for the next 60 minutes and will expire afterward. Please ensure you use it within this time frame to reset your password.
+
+If you did not request a password reset, please ignore this email or contact support if you have any concerns.
+
+Best regards,
+The Notes Team.`,
     };
 
     // Send the email

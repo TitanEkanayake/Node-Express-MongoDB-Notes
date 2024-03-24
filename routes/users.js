@@ -130,7 +130,6 @@ router.post("/forgot-password", async (req, res) => {
       { resetToken: resetToken, resetTokenExpiration: expirationTime },
       { new: true }
     );
-    console.log(user);
 
     if (!user) {
       return res.json({ status: 404, message: "User not found." });
