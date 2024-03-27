@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/users");
 const bcrypt = require("bcrypt");
-const generateResetToken = require("../utils/tokengenerator");
+const generateResetToken = require("../utils/forgetPasswordTokenGenerator");
 const sendResetPasswordEmail = require("../utils/emailgenerator");
+const jwt = require("jsonwebtoken");
+const generateJwtToken = require("../utils/jwtTokenGenerator");
 
 //creating one | Signup |
 
@@ -38,10 +40,16 @@ router.post("/signup", (req, res) => {
 
             try {
               const newUser = await user.save();
+
+              const token = generateJwtToken({
+                email: newUser.email,
+                userId: newUser._id,
+              });
               res.json({
                 status: 201,
                 message: "User Created",
                 user: newUser,
+                token: token,
               });
             } catch (err) {
               res.json({
@@ -76,10 +84,15 @@ router.post("/login", (req, res) => {
           .compare(password, hashedPassword)
           .then((result) => {
             if (result) {
+              const token = generateJwtToken({
+                name: data[0].name,
+                userId: data[0]._id,
+              });
               res.json({
                 status: 200,
                 message: "Login Successful !",
                 user: data,
+                token: token,
               });
             } else {
               res.json({
@@ -168,6 +181,13 @@ router.post("/reset-password", (req, res) => {
       console.error(err);
       res.json({ status: 500, message: "Internal server error." });
     });
+});
+
+router.get("/active", (req, res) => {
+  res.json({
+    status: 200,
+    message: "active",
+  });
 });
 
 module.exports = router;
