@@ -41,15 +41,14 @@ router.post("/signup", (req, res) => {
             try {
               const newUser = await user.save();
 
-              const token = generateJwtToken({
-                email: newUser.email,
-                userId: newUser._id,
-              });
+              // const token = generateJwtToken({
+              //   email: newUser.email,
+              //   userId: newUser._id,
+              // });
               res.json({
                 status: 201,
                 message: "User Created",
                 user: newUser,
-                token: token,
               });
             } catch (err) {
               res.json({
@@ -84,15 +83,14 @@ router.post("/login", (req, res) => {
           .compare(password, hashedPassword)
           .then((result) => {
             if (result) {
-              const token = generateJwtToken({
-                name: data[0].name,
-                userId: data[0]._id,
-              });
+              // const token = generateJwtToken({
+              //   name: data[0].name,
+              //   userId: data[0]._id,
+              // });
               res.json({
                 status: 200,
                 message: "Login Successful !",
                 user: data,
-                token: token,
               });
             } else {
               res.json({
